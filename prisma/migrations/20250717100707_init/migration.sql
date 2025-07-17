@@ -22,6 +22,8 @@ CREATE TABLE "products" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "isApproved" BOOLEAN NOT NULL DEFAULT false,
 
+    "isValid" BOOLEAN NOT NULL DEFAULT false --Mert
+
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
 
