@@ -20,9 +20,7 @@ CREATE TABLE "products" (
     "price" DOUBLE PRECISION NOT NULL,
     "stock" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "isApproved" BOOLEAN NOT NULL DEFAULT false,
-
-    "isValid" BOOLEAN NOT NULL DEFAULT false --Mert
+    "isApproved" BOOLEAN NOT NULL DEFAULT false
 
     CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
