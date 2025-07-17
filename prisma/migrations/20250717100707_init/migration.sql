@@ -34,5 +34,17 @@ CREATE TABLE "Category" (
     CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
 );
 
+-- Order Table
+CREATE TABLE "Order" (
+    "id" TEXT NOT NULL,
+    "orderItems" TEXT NOT NULL,
+    "totalAmount" DOUBLE PRECISION NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "orderDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "orders_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "orders_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
