@@ -1,0 +1,47 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model - مبسط
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  firstName String
+  lastName  String
+  password  String
+  phone     String?
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+  
+  @@map("users")
+}
+
+// Product model 
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  createdAt   DateTime @default(now())
+  isApproved  Boolean  @default(false)
+  
+  @@map("products")
+}
+
+// Category model 
+model Category {
+  id        String @id @default(cuid())
+  name      String
+  parentId  String?
+  
+  @@map("categories")
+}
