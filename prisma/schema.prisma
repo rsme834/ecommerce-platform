@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,21 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User model - مبسط
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
+  password  String
   firstName String
   lastName  String
-  password  String
   phone     String?
   createdAt DateTime @default(now())
   isActive  Boolean  @default(true)
   
-  @@map("users")
+  // العلاقات
+  orders    Order[]
+  images    Image[]
+  
+  @@map("User")
 }
 
-// Product model 
 model Product {
   id          String   @id @default(cuid())
   name        String
@@ -34,14 +33,54 @@ model Product {
   createdAt   DateTime @default(now())
   isApproved  Boolean  @default(false)
   
-  @@map("products")
+  // العلاقات
+  images      Image[]
+  
+  @@map("Product")
 }
 
-// Category model 
 model Category {
-  id        String @id @default(cuid())
-  name      String
-  parentId  String?
+  id       String    @id @default(cuid())
+  name     String
+  parentId String?
   
-  @@map("categories")
+  // العلاقات الذاتية
+  parent   Category? @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
+  
+  @@map("Category")
+}
+
+model Order {
+  id          String   @id @default(cuid())
+  userId      String
+  orderItems  String
+  totalAmount Float
+  status      String   @default("PENDING")
+  orderDate   DateTime @default(now())
+  
+  // العلاقة مع User
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("Order")
+}
+
+model Image {
+  id          String   @id @default(cuid())
+  url         String
+  altText     String?
+  fileName    String
+  fileSize    Int?
+  mimeType    String?
+  productId   String?
+  userId      String?
+  isMain      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // العلاقات
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("Image")
 }

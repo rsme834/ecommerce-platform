@@ -1,50 +1,61 @@
--- User Table
-CREATE TABLE "User" (
-    "id" TEXT NOT NULL,
-    "email" TEXT NOT NULL,
-    "password" TEXT NOT NULL,
-    "firstName" TEXT NOT NULL,
-    "lastName" TEXT NOT NULL,
-    "phone" TEXT,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "isActive" BOOLEAN NOT NULL DEFAULT true,
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  phone     String?
+  createdAt DateTime @default(now())
+  isActive  Boolean  @default(true)
+  orders    Order[]
+}
 
-    CONSTRAINT "users_pkey" PRIMARY KEY ("id")
-);
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  stock       Int
+  createdAt   DateTime @default(now())
+  isApproved  Boolean  @default(false)
+  images      Image[]  // علاقة مع جدول الصور
+}
 
--- Product Table
-CREATE TABLE "Product" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "description" TEXT NOT NULL,
-    "price" DOUBLE PRECISION NOT NULL,
-    "stock" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "isApproved" BOOLEAN NOT NULL DEFAULT false
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  parentId String?
+  parent   Category? @relation("CategoryParent", fields: [parentId], references: [id])
+  children Category[] @relation("CategoryParent")
+}
 
-    CONSTRAINT "products_pkey" PRIMARY KEY ("id")
-);
+model Order {
+  id          String   @id @default(cuid())
+  userId      String
+  orderItems  String
+  totalAmount Float
+  status      String   @default("PENDING")
+  orderDate   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
 
--- Category Table
-CREATE TABLE "Category" (
-    "id" TEXT NOT NULL,
-    "name" TEXT NOT NULL,
-    "parentId" TEXT,
-
-    CONSTRAINT "categories_pkey" PRIMARY KEY ("id")
-);
-
--- Order Table
-CREATE TABLE "Order" (
-    "id" TEXT NOT NULL,
-    "orderItems" TEXT NOT NULL,
-    "totalAmount" DOUBLE PRECISION NOT NULL,
-    "status" TEXT NOT NULL DEFAULT 'PENDING',
-    "orderDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    CONSTRAINT "orders_pkey" PRIMARY KEY ("id"),
-    CONSTRAINT "orders_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE
-);
-
--- CreateIndex
-CREATE UNIQUE INDEX "users_email_key" ON "users"("email");
+// جدول الصور الجديد
+model Image {
+  id          String   @id @default(cuid())
+  url         String   
+  altText     String?  //
+  fileName    String   // 
+  fileSize    Int?     // حجم الملف بالبايت
+  mimeType    String?  // نوع الملف (image/jpeg, image/png, etc.)
+  productId   String?  // ربط مع المنتج (اختياري)
+  userId      String?  // ربط مع المستخدم (اختياري)
+  isMain      Boolean  @default(false) // هل هي الصورة الرئيسية
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  
+  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("images")
+}

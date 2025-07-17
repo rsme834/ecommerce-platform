@@ -10,6 +10,13 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "npx tsx prisma/seed.ts",
+    "db:push": "prisma db push",
+    "db:generate": "prisma generate",
+    "db:reset": "prisma migrate reset",
+    "db:pull": "prisma db pull",
+    "db:validate": "prisma validate",
+    "setup": "npm install && prisma generate",
+    "pull-update": "git pull && npm install && prisma generate",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
   },

@@ -1,0 +1,59 @@
+cat > README.md << 'EOF'
+# E-commerce Platform
+
+E-commerce platform built with Next.js and PostgreSQL
+
+## System Requirements
+
+- Node.js 18+
+- Docker & Docker Compose
+- Git
+
+## Setup Instructions for Team
+
+### 1. Clone the repository
+```bash
+git clone https://github.com/rsme834/ecommerce-platform.git
+cd ecommerce-platform
+2. Install dependencies
+bashnpm install
+3. Start database services
+bashnpm run docker:up
+4. Apply database migrations
+bashnpm run db:migrate
+5. Seed initial data
+bashnpm run db:seed
+6. Start development server
+bashnpm run dev
+Daily Workflow
+Before starting work:
+bashgit pull origin main
+npm run db:migrate
+After finishing work:
+bashgit add .
+git commit -m "Description of changes"
+git push origin main
+Useful Commands
+
+npm run db:studio - Open Prisma Studio
+npm run docker:down - Stop database services
+npm run docker:up - Start database services
+npm run dev - Start development server
+
+Default Admin User
+
+Email: admin@ecommerce.com
+Password: admin123
+
+Database
+The project uses PostgreSQL with Prisma ORM. Sample data includes:
+
+3 product categories (Smartphones, Computers, Accessories)
+3 sample products (iPhone 15, MacBook Pro, AirPods Pro)
+Admin user for testing
+
+Development Notes
+
+Database runs on localhost:5432
+Redis runs on localhost:6379
+Web server runs on localho
