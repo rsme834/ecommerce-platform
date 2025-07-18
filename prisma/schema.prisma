@@ -1,3 +1,6 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -7,80 +10,269 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// User Management
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  firstName String
-  lastName  String
-  phone     String?
-  createdAt DateTime @default(now())
-  isActive  Boolean  @default(true)
+  id           String    @id @default(cuid())
+  email        String    @unique
+  password     String
+  firstName    String
+  lastName     String
+  phone        String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  isActive     Boolean   @default(true)
   
-  // العلاقات
-  orders    Order[]
-  images    Image[]
+  // Relations
+  customer     Customer?
+  business     Business?
+  admin        Admin?
   
-  @@map("User")
+  @@map("users")
+}
+
+model Customer {
+  id            String    @id @default(cuid())
+  userId        String    @unique
+  wishlist      Product[]
+  loyaltyPoints Int       @default(0)
+  
+  // Relations
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  addresses     Address[]
+  orders        Order[]
+  reviews       Review[]
+  cartItems     CartItem[]
+  
+  @@map("customers")
+}
+
+model Business {
+  id              String    @id @default(cuid())
+  userId          String    @unique
+  businessName    String
+  taxNumber       String    @unique
+  isVerified      Boolean   @default(false)
+  
+  // Relations
+  user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  products        Product[]
+  
+  @@map("businesses")
+}
+
+model Admin {
+  id           String    @id @default(cuid())
+  userId       String    @unique
+  permissions  String[]
+  lastLogin    DateTime?
+  
+  // Relations
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("admins")
+}
+
+// Address Management
+model Address {
+  id           String      @id @default(cuid())
+  customerId   String
+  userId       String
+  title        String
+  firstName    String
+  lastName     String
+  companyName  String?
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  phone        String
+  isDefault    Boolean     @default(false)
+  type         AddressType @default(SHIPPING)
+  
+  // Relations
+  customer     Customer    @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  
+  @@map("addresses")
+}
+
+// Product Management
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  parentId    String?
+  
+  // Relations
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+  
+  @@map("categories")
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  name        String
-  description String
-  price       Float
-  stock       Int
-  createdAt   DateTime @default(now())
-  isApproved  Boolean  @default(false)
+  id           String    @id @default(cuid())
+  name         String
+  description  String
+  price        Decimal   @db.Decimal(10, 2)
+  stock        Int
+  images       String[]
+  sellerId     String
+  categoryId   String
+  isApproved   Boolean   @default(false)
+  rating       Decimal?  @db.Decimal(2, 1)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   
-  // العلاقات
-  images      Image[]
+  // Relations
+  seller       Business    @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category     Category    @relation(fields: [categoryId], references: [id])
+  orderItems   OrderItem[]
+  reviews      Review[]
+  images_rel   Image[]
+  cartItems    CartItem[]
+  wishlists    Customer[]
   
-  @@map("Product")
-}
-
-model Category {
-  id       String    @id @default(cuid())
-  name     String
-  parentId String?
-  
-  // العلاقات الذاتية
-  parent   Category? @relation("CategoryParent", fields: [parentId], references: [id])
-  children Category[] @relation("CategoryParent")
-  
-  @@map("Category")
-}
-
-model Order {
-  id          String   @id @default(cuid())
-  userId      String
-  orderItems  String
-  totalAmount Float
-  status      String   @default("PENDING")
-  orderDate   DateTime @default(now())
-  
-  // العلاقة مع User
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  @@map("Order")
+  @@map("products")
 }
 
 model Image {
-  id          String   @id @default(cuid())
+  id          String  @id @default(cuid())
+  productId   String
   url         String
-  altText     String?
-  fileName    String
-  fileSize    Int?
-  mimeType    String?
-  productId   String?
-  userId      String?
-  isMain      Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  alt         String?
+  size        Int?
+  format      String?
+  isMain      Boolean @default(false)
+  uploadDate  DateTime @default(now())
+  cloudinaryId String?
   
-  // العلاقات
-  product     Product? @relation(fields: [productId], references: [id], onDelete: Cascade)
-  user        User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Relations
+  product     Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   
-  @@map("Image")
+  @@map("images")
+}
+
+// Order Management
+model Order {
+  id            String      @id @default(cuid())
+  customerId    String
+  addressId     String
+  totalAmount   Decimal     @db.Decimal(10, 2)
+  status        OrderStatus @default(PENDING)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  
+  // Relations
+  customer      Customer    @relation(fields: [customerId], references: [id])
+  address       Address     @relation(fields: [addressId], references: [id])
+  orderItems    OrderItem[]
+  payments      Payment[]
+  
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String  @id @default(cuid())
+  orderId    String
+  productId  String
+  quantity   Int
+  unitPrice  Decimal @db.Decimal(10, 2)
+  totalPrice Decimal @db.Decimal(10, 2)
+  
+  // Relations
+  order      Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [productId], references: [id])
+  
+  @@map("order_items")
+}
+
+// Payment Management
+model Payment {
+  id              String        @id @default(cuid())
+  orderId         String
+  amount          Decimal       @db.Decimal(10, 2)
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  transactionId   String?
+  paymentDate     DateTime?
+  
+  // Relations
+  order           Order         @relation(fields: [orderId], references: [id])
+  
+  @@map("payments")
+}
+
+// Cart Management
+model CartItem {
+  id         String   @id @default(cuid())
+  customerId String
+  productId  String
+  quantity   Int
+  createdAt  DateTime @default(now())
+  
+  // Relations
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  
+  @@unique([customerId, productId])
+  @@map("cart_items")
+}
+
+// Review Management
+model Review {
+  id           String    @id @default(cuid())
+  customerId   String
+  productId    String
+  rating       Int       @db.SmallInt
+  title        String?
+  comment      String?
+  pros         String[]
+  cons         String[]
+  isVerified   Boolean   @default(false)
+  isApproved   Boolean   @default(false)
+  helpfulCount Int       @default(0)
+  reviewDate   DateTime  @default(now())
+  
+  // Relations
+  customer     Customer  @relation(fields: [customerId], references: [id])
+  product      Product   @relation(fields: [productId], references: [id])
+  
+  @@unique([customerId, productId])
+  @@map("reviews")
+}
+
+// Enums
+enum AddressType {
+  SHIPPING
+  BILLING
+  BOTH
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  PAYPAL
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
