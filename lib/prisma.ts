@@ -1,41 +1,41 @@
 // lib/prisma.ts
 import { PrismaClient } from '@prisma/client';
 
-// إنشاء متغير عام لـ Prisma لتجنب إنشاء اتصالات متعددة في التطوير
+// Create global variable for Prisma to avoid multiple connections in development
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// إنشاء Prisma Client أو استخدام الموجود
+// Create Prisma Client or use existing one
 export const prisma = globalForPrisma.prisma ?? 
   new PrismaClient({
-    log: ['query', 'error', 'warn'], // تسجيل الاستعلامات والأخطاء
-    errorFormat: 'pretty',           // تنسيق جميل للأخطاء
+    log: ['query', 'error', 'warn'], // Log queries and errors
+    errorFormat: 'pretty',           // Pretty error formatting
   });
 
-// في بيئة التطوير، احفظ الـ client في المتغير العام
+// In development environment, save the client in global variable
 if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
-// دالة للاتصال بقاعدة البيانات
+// Function to connect to database
 export async function connectDB() {
   try {
     await prisma.$connect();
-    console.log('✅ تم الاتصال بقاعدة البيانات بنجاح');
+    console.log('✅ Database connected successfully');
   } catch (error) {
-    console.error('❌ خطأ في الاتصال بقاعدة البيانات:', error);
+    console.error('❌ Database connection error:', error);
     process.exit(1);
   }
 }
 
-// دالة لقطع الاتصال بقاعدة البيانات
+// Function to disconnect from database
 export async function disconnectDB() {
   await prisma.$disconnect();
-  console.log('✅ تم قطع الاتصال بقاعدة البيانات');
+  console.log('✅ Database disconnected successfully');
 }
 
-// فحص صحة قاعدة البيانات
+// Database health check
 export async function checkDBHealth() {
   try {
     await prisma.$queryRaw`SELECT 1`;
@@ -45,16 +45,16 @@ export async function checkDBHealth() {
   }
 }
 
-// دالة مساعدة للمعاملات
+// Helper function for transactions
 export async function runTransaction<T>(
   fn: (tx: PrismaClient) => Promise<T>
 ): Promise<T> {
   return await prisma.$transaction(fn);
 }
 
-// استعلامات شائعة
+// Common queries
 export const queries = {
-  // استعلامات المستخدمين
+  // User queries
   findUserByEmail: (email: string) =>
     prisma.user.findUnique({
       where: { email },
@@ -65,7 +65,7 @@ export const queries = {
       },
     }),
 
-  // استعلامات المنتجات
+  // Product queries
   findProductsWithDetails: (filters?: {
     categoryId?: string;
     sellerId?: string;
@@ -119,7 +119,7 @@ export const queries = {
       orderBy: { createdAt: 'desc' },
     }),
 
-  // استعلامات الطلبات
+  // Order queries
   findOrdersWithDetails: (customerId?: string) =>
     prisma.order.findMany({
       where: customerId ? { customerId } : undefined,
@@ -163,7 +163,7 @@ export const queries = {
       orderBy: { createdAt: 'desc' },
     }),
 
-  // استعلامات السلة
+  // Cart queries
   findCartItems: (customerId: string) =>
     prisma.cartItem.findMany({
       where: { customerId },
@@ -189,7 +189,7 @@ export const queries = {
       },
     }),
 
-  // إحصائيات لوحة التحكم
+  // Dashboard statistics
   getDashboardStats: async () => {
     const [
       totalUsers,
@@ -240,5 +240,5 @@ export const queries = {
   },
 };
 
-// تصدير prisma كافتراضي
+// Export prisma as default
 export default prisma;
