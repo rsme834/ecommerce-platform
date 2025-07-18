@@ -97,11 +97,3 @@ Prisma Studio available at localhost:5555
 EOF
 ```
 
-### 2. Setup Instructions for Team
-Copy the .env.example file as .env:
-
-```bash
-cp .env.example .env
-```
-Since .env.example and .env are currently identical, you don't need to change anything unless your local setup differs.
-
