@@ -31,6 +31,15 @@ async function main() {
     }),
     prisma.product.create({
       data: {
+        name: 'iPhone 15 Pro',
+        description: 'Latest smartphone Pro model from Apple',
+        price: 1299.99,
+        stock: 20,
+        isApproved: true
+      }
+    }),
+    prisma.product.create({
+      data: {
         name: 'MacBook Pro',
         description: 'Powerful laptop for developers and designers',
         price: 1999.99,
