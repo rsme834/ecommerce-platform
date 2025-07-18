@@ -47,8 +47,6 @@ E-commerce platform built with Next.js and PostgreSQL
 - Docker & Docker Compose
 - Git
 
-## Setup Instructions for Team
-
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/rsme834/ecommerce-platform.git
@@ -97,4 +95,13 @@ Redis runs on localhost:6379
 Web server runs on localhost:3000 (or next available port)
 Prisma Studio available at localhost:5555
 EOF
+```
+
+### 2. Setup Instructions for Team
+Copy the .env.example file as .env:
+
+```bash
+cp .env.example .env
+```
+Since .env.example and .env are currently identical, you don't need to change anything unless your local setup differs.
 
